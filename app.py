@@ -16,10 +16,6 @@ def index():
 def dashboard():
     return render_template('dashboard.html')
 
-#@app.route('/channel')
-#def channel():
-	#return render_template('channel.html')
-
 @app.route('/create-channel')
 def create_channel():
 	return render_template('create_channel.html')
@@ -35,6 +31,14 @@ def arrival(data):
 	username = data['username']
 	path = data['path']
 	emit("announce arrival", {"username": username, "path": path}, broadcast=True)
+
+@socketio.on('user leaving')
+def leaving(data):
+    print('User left: ')
+    print(data)
+    username = data['username']
+    path = data['path']
+    emit("announce leaving", {"username": username, "path": path}, broadcast=True)
 
 @socketio.on('send message')
 def message(data):

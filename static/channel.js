@@ -5,7 +5,10 @@ if (!localStorage.getItem('username')) {
 	document.addEventListener('DOMContentLoaded', () => {
 	    document.querySelector('span').innerHTML = localStorage.getItem('username');
 	    var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
-
+			window.onbeforeunload = () => {
+				socket.emit('user leaving', {'username': localStorage.getItem('username'), 'path': location.pathname});
+				return null;
+			}
 	    socket.on('connect', () => {
 	    	socket.emit('user arrival', {'username': localStorage.getItem('username'), 'path': location.pathname});
 	    	document.querySelector('button').onclick = () => {
@@ -28,6 +31,13 @@ if (!localStorage.getItem('username')) {
 	    	if (data.path == location.pathname) {
 		    	let li = document.createElement('li');
 		    	li.innerHTML = `${data.username} has joined the channel.`;
+		    	document.querySelector('ul').append(li);
+		    }
+	    });
+			socket.on('announce leaving', data => {
+	    	if (data.path == location.pathname) {
+		    	let li = document.createElement('li');
+		    	li.innerHTML = `${data.username} has left the channel.`;
 		    	document.querySelector('ul').append(li);
 		    }
 	    });
